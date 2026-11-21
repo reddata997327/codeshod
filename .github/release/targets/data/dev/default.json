@@ -1,0 +1,39 @@
+{
+  "name": "codeshod-data-dev",
+  "compatibilityDate": "2026-07-25",
+  "compatibilityFlags": ["nodejs_compat"],
+  "triggers": [
+    { "type": "fetch", "pattern": "dev.codeshod.ai/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/en/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/zh/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/zht/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/ko/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/de/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/es/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/fr/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/it/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/da/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/ja/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/pl/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/ru/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/uk/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/ar/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/no/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/br/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/th/data*", "zone": "dev.codeshod.ai" },
+    { "type": "fetch", "pattern": "dev.codeshod.ai/tr/data*", "zone": "dev.codeshod.ai" }
+  ],
+  "observability": { "enabled": true },
+  "workersDev": false,
+  "previewUrls": false,
+  "env": {
+    "ASSETS": { "type": "assets" },
+    "OG_WORKER": { "type": "worker", "worker": "codeshod-data-og-dev" },
+    "STAGE": { "type": "text", "value": "dev" },
+    "PUBLIC_URL": { "type": "text", "value": "https://dev.codeshod.ai/data" },
+    "DATA_DATABASE_HOST": { "type": "secret" },
+    "DATA_DATABASE_USERNAME": { "type": "secret" },
+    "DATA_DATABASE_PASSWORD": { "type": "secret" }
+  },
+  "manifest": { "type": "partial", "mainModule": "index.mjs", "modules": {} }
+}

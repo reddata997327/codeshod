@@ -1,0 +1,39 @@
+{
+  "name": "codeshod-data-production",
+  "compatibilityDate": "2026-07-25",
+  "compatibilityFlags": ["nodejs_compat"],
+  "triggers": [
+    { "type": "fetch", "pattern": "codeshod.ai/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/en/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/zh/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/zht/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/ko/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/de/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/es/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/fr/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/it/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/da/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/ja/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/pl/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/ru/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/uk/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/ar/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/no/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/br/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/th/data*", "zone": "codeshod.ai" },
+    { "type": "fetch", "pattern": "codeshod.ai/tr/data*", "zone": "codeshod.ai" }
+  ],
+  "observability": { "enabled": true },
+  "workersDev": false,
+  "previewUrls": false,
+  "env": {
+    "ASSETS": { "type": "assets" },
+    "OG_WORKER": { "type": "worker", "worker": "codeshod-data-og-production" },
+    "STAGE": { "type": "text", "value": "production" },
+    "PUBLIC_URL": { "type": "text", "value": "https://codeshod.ai/data" },
+    "DATA_DATABASE_HOST": { "type": "secret" },
+    "DATA_DATABASE_USERNAME": { "type": "secret" },
+    "DATA_DATABASE_PASSWORD": { "type": "secret" }
+  },
+  "manifest": { "type": "partial", "mainModule": "index.mjs", "modules": {} }
+}

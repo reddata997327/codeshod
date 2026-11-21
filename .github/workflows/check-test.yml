@@ -1,0 +1,178 @@
+name: check-test
+
+# Pull requests run the fast tier: the affected unit tests on Linux. The full tier — unit tests on Windows and the
+# compiled builds — runs on pushes to dev and beta and on nightly and manual runs. A stable release also runs it
+# through release.yml's gate.
+on:
+  push:
+    branches:
+      - dev
+      - beta
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  # A new push to a pull request cancels its stale run. Every push and manual run keeps its own group, so each
+  # dev and beta commit gets a verdict.
+  group: ${{ case(github.event_name == 'pull_request', format('{0}-{1}', github.workflow, github.event.pull_request.number), format('{0}-{1}', github.workflow, github.run_id)) }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Push and pull request runs test only what changed. Manual runs and the release gate test everything: they
+  # have no base commit to diff against.
+  AFFECTED: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+  # Pull requests diff against the merge's first parent; pushes diff against the previous dev head.
+  TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && format('{0}^1', github.sha) || github.event.before }}
+  TURBO_SCM_HEAD: ${{ github.sha }}
+
+jobs:
+  # Only the browser suites need this, and pull requests run no browser suites.
+  unit:
+    name: unit (${{ matrix.settings.name }})
+    if: ${{ !github.event.pull_request.draft }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Pull requests run Linux only; Windows runs the same tests on pushes, nightly runs and the release gate.
+        settings: ${{ fromJSON(github.event_name == 'pull_request' && '[{"name":"linux","host":"blacksmith-4vcpu-ubuntu-2404"}]' || '[{"name":"linux","host":"blacksmith-4vcpu-ubuntu-2404"},{"name":"windows","host":"blacksmith-4vcpu-windows-2025"}]') }}
+    runs-on: ${{ matrix.settings.host }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Pull requests diff against the merge's first parent; pushes diff against the previous dev head.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+
+      - name: Setup Bun
+        uses: ./.github/actions/setup-bun
+
+      - name: Test Effect simplification rules
+        if: runner.os == 'Linux'
+        run: bun run test:effect-simplification-rules
+
+      - name: Check Effect simplifications
+        if: runner.os == 'Linux'
+        run: bun run lint:effect-simplifications
+
+      - name: Configure git identity
+        run: |
+          git config --global user.email "bot@codeshod.ai"
+          git config --global user.name "codeshod"
+
+      - name: Run unit tests
+        timeout-minutes: 20
+        run: |
+          # The runners have four vCPUs, and each Bun test process performs its own concurrent work.
+          if [ "$AFFECTED" = "true" ]; then
+            GITHUB_ACTIONS=false bun turbo test --affected --concurrency=3
+            exit 0
+          fi
+          GITHUB_ACTIONS=false bun turbo test --concurrency=3
+        env:
+          CODESHOD_EXPERIMENTAL_DISABLE_FILEWATCHER: ${{ runner.os == 'Windows' && 'true' || 'false' }}
+
+      - name: Verify packed codemode package
+        if: runner.os == 'Linux'
+        working-directory: packages/codemode
+        run: bun run pack
+
+      - name: Verify packed workerd SDK
+        if: runner.os == 'Linux'
+        timeout-minutes: 15
+        run: |
+          if [ "$AFFECTED" = "true" ]; then
+            bun turbo verify:package --affected --filter=@codeshod/sdk
+            exit 0
+          fi
+          bun turbo verify:package --filter=@codeshod/sdk
+
+      - name: Check generated client
+        if: runner.os == 'Linux'
+        working-directory: packages/client
+        run: bun run check:generated
+
+      - name: Check generated OpenAPI document
+        if: runner.os == 'Linux'
+        working-directory: packages/protocol
+        run: bun run check:generated
+
+  build:
+    name: build (${{ matrix.settings.name }})
+    # Compiling the CLI and smoke-testing its service lifecycle is part of the full tier.
+    if: ${{ github.event_name != 'pull_request' && !github.event.pull_request.draft }}
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - name: linux
+            host: blacksmith-4vcpu-ubuntu-2404
+          - name: windows
+            host: blacksmith-4vcpu-windows-2025
+    runs-on: ${{ matrix.settings.host }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: ./.github/actions/setup-bun
+
+      - name: Verify compiled service lifecycle
+        timeout-minutes: 10
+        working-directory: packages/cli
+        env:
+          NODE_OPTIONS: ${{ runner.os == 'Windows' && '--max-old-space-size=4096' || '' }}
+        run: |
+          bun run script/build.ts --single --skip-install
+          bun run script/service-smoke.ts
+
+      # Unit tests import workspace sources and never build the libraries they use, so this checks those builds. The
+      # CLI and app closures hold every library a tested package depends on. The builds are tsc and Bun.build with no
+      # platform-specific steps, and the libraries publish from Linux, so Windows skips them.
+      - name: Build workspace libraries
+        if: ${{ !cancelled() && runner.os == 'Linux' }}
+        timeout-minutes: 10
+        run: |
+          if [ "$AFFECTED" = "true" ]; then
+            bun turbo build --affected --concurrency=3 --filter='@codeshod/cli^...'
+            exit 0
+          fi
+          bun turbo build --concurrency=3 --filter='@codeshod/cli^...'
+
+      - name: Setup Node build runtime
+        if: ${{ !cancelled() }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "26.4.0"
+
+      - name: Verify Node build
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        working-directory: packages/cli
+        env:
+          NODE_OPTIONS: ${{ runner.os == 'Windows' && '--max-old-space-size=4096' || '' }}
+        run: |
+          bun run script/build-node.ts --single --skip-install --outdir=dist/node
+          bun run script/service-smoke.ts --node
+

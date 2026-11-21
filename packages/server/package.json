@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@codeshod/server",
+  "version": "2.3.0",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reddata997327/codeshod.git",
+    "directory": "packages/server"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "build": "bun run script/build.ts",
+    "pack": "bun run script/pack.ts",
+    "test": "bun test --only-failures",
+    "typecheck": "bun check --no-script -b",
+    "typecheck:tsc": "tsc -b",
+    "probe:workerd": "bun run script/workerd-probe.ts"
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:",
+    "@effect/platform-node-shared": "catalog:",
+    "@codeshod/core": "workspace:*",
+    "@codeshod/protocol": "workspace:*",
+    "@codeshod/schema": "workspace:*",
+    "@codeshod/simulation": "workspace:*",
+    "@codeshod/util": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@codeshod/pty": "0.6.0",
+    "@codeshod/client": "workspace:*",
+    "@codeshod/plugin": "workspace:*",
+    "@tsconfig/bun": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:"
+  }
+}

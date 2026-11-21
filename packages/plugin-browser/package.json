@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@codeshod/plugin-browser",
+  "version": "2.3.0",
+  "description": "Codeshod's desktop browser plugin",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reddata997327/codeshod.git",
+    "directory": "packages/plugin-browser"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./rpc": "./src/rpc.ts",
+    "./workspace": "./src/workspace.ts",
+    "./preview-path": "./src/preview-path.ts",
+    "./proxy": "./src/proxy.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "pack": "bun run script/pack.ts",
+    "typecheck": "bun check --no-script -p tsconfig.test.json",
+    "typecheck:tsc": "tsc --noEmit -p tsconfig.test.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@codeshod/plugin": "workspace:*",
+    "@codeshod/schema": "workspace:*",
+    "@codeshod/util": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@tsconfig/bun": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

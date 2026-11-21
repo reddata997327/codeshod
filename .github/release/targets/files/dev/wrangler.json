@@ -1,0 +1,12 @@
+{
+  "name": "codeshod-dev-files",
+  "account_id": "d8e944f537ceef3f06a5bd3aec1d7a53",
+  "main": "index.js",
+  "no_bundle": true,
+  "compatibility_date": "2026-08-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": { "STAGE": "dev" },
+  "routes": [{ "pattern": "dev.codeshod.ai/files/*", "zone_name": "dev.codeshod.ai" }],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "codeshod-dev-files" }]
+}

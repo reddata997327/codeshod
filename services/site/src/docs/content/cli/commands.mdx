@@ -1,0 +1,634 @@
+---
+title: "CLI commands"
+description: "Reference for the codeshod command line."
+---
+
+Every command accepts `--help` for its full flag list, for example `codeshod run --help`. Some server-backed commands accept `--standalone` to run a private server or `--server <url>` to target a specific one; check the command's help for its supported flags.
+
+## run
+
+Sends a message and prints the reply without opening the interactive interface.
+
+```bash
+$ codeshod run "Explain this repository"
+```
+
+### CI
+
+In CI, pass a provider API key as a secret and use standalone mode so the private server receives it. For example, this GitHub Actions job reviews the checked-out repository:
+
+```yaml
+name: Codeshod review
+on: [pull_request]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --global @codeshod/cli
+      - run: codeshod run --standalone --model anthropic/claude-sonnet-5-5 "Review this repository for correctness and summarize any issues."
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+```
+
+Choose a model.
+
+```bash
+$ codeshod run --model anthropic/claude-sonnet-5-5 "Refactor parseToken"
+```
+
+Continue the last session.
+
+```bash
+$ codeshod run --continue "Now handle the expired case"
+```
+
+Emit newline-delimited JSON for scripts.
+
+```bash
+$ codeshod run --format json "List the TODO comments"
+```
+
+Attach files to the message.
+
+```bash
+$ codeshod run --file src/server.ts --file src/client.ts "Review these for bugs"
+```
+
+Run with a specific agent.
+
+```bash
+$ codeshod run --agent build "Fix the failing test"
+```
+
+Continue a specific session.
+
+```bash
+$ codeshod run --session ses_4f2a1c "Check edge cases"
+```
+
+Auto-approve permissions that are not explicitly denied.
+
+```bash
+$ codeshod run --auto "Fix the failing test"
+```
+
+Create the session archived so scripted or CI runs stay out of session lists and the inbox. The session still exists: `codeshod session list` includes it, and you can open it by ID.
+
+```bash
+$ codeshod run --archived "Review this diff"
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod run --help
+```
+
+## mini
+
+Starts the minimal interactive interface instead of the full-screen TUI.
+
+```bash
+$ codeshod mini
+```
+
+Continue the last session.
+
+```bash
+$ codeshod mini --continue
+```
+
+Start with a model and an initial prompt.
+
+```bash
+$ codeshod mini --model anthropic/claude-sonnet-5-5 --prompt "Summarize this repository"
+```
+
+Continue a specific session.
+
+```bash
+$ codeshod mini --session ses_4f2a1c
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod mini --help
+```
+
+## session
+
+Manages sessions.
+
+```bash
+$ codeshod session list
+```
+
+Limit the list and print JSON.
+
+```bash
+$ codeshod session list --max-count 20 --format json
+```
+
+Delete a session and its child sessions.
+
+```bash
+$ codeshod session delete ses_9c1b08
+```
+
+Export session data as JSON.
+
+```bash
+$ codeshod session export ses_4f2a1c
+```
+
+Redact sensitive transcript and file data when exporting.
+
+```bash
+$ codeshod session export ses_4f2a1c --sanitize
+```
+
+Import session data from a JSON file or URL.
+
+```bash
+$ codeshod session import session.json
+```
+
+Import into a specific directory.
+
+```bash
+$ codeshod session import session.json --directory ~/code/project
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod session --help
+```
+
+## auth
+
+Manages AI providers and credentials.
+
+```bash
+$ codeshod auth list
+```
+
+List them as JSON.
+
+```bash
+$ codeshod auth list --format json
+```
+
+Log in to a provider.
+
+```bash
+$ codeshod auth login anthropic
+```
+
+Log in with a specific authentication method.
+
+```bash
+$ codeshod auth login anthropic --method key
+```
+
+Log out of a saved account.
+
+```bash
+$ codeshod auth logout anthropic work
+```
+
+Switch the active account for an integration.
+
+```bash
+$ codeshod auth switch anthropic work
+```
+
+Export saved credentials and import them on another machine. The file contains secrets.
+
+```bash
+$ codeshod auth export anthropic > credentials.json
+$ codeshod auth import credentials.json
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod auth --help
+```
+
+## models
+
+Lists every available model.
+
+```bash
+$ codeshod models
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod models --help
+```
+
+## mcp
+
+Manages MCP (Model Context Protocol) servers.
+
+```bash
+$ codeshod mcp list
+```
+
+Add a remote server.
+
+```bash
+$ codeshod mcp add context7 --url https://mcp.context7.com/mcp
+```
+
+Add a local server to the global config.
+
+```bash
+$ codeshod mcp add everything --global -- npx -y @modelcontextprotocol/server-everything
+```
+
+Add a local server with an environment variable.
+
+```bash
+$ codeshod mcp add everything --env LOG_LEVEL=debug -- npx -y @modelcontextprotocol/server-everything
+```
+
+Add a remote server with a header.
+
+```bash
+$ codeshod mcp add context7 --url https://mcp.context7.com/mcp --header CONTEXT7_API_KEY=secret
+```
+
+Authenticate with an OAuth-capable remote server.
+
+```bash
+$ codeshod mcp auth sentry
+```
+
+Remove stored OAuth credentials for a server.
+
+```bash
+$ codeshod mcp logout sentry
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod mcp --help
+```
+
+## plugin
+
+Manages plugins.
+
+```bash
+$ codeshod plugin list
+```
+
+Include built-in server plugins.
+
+```bash
+$ codeshod plugin list --builtin
+```
+
+Install a plugin and add it to the global configuration.
+
+```bash
+$ codeshod plugin add @example/codeshod-tui
+```
+
+Check package plugins for updates.
+
+```bash
+$ codeshod plugin check
+```
+
+Update package plugins.
+
+```bash
+$ codeshod plugin update
+```
+
+Remove a plugin from global configuration.
+
+```bash
+$ codeshod plugin remove @example/codeshod-tui
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod plugin --help
+```
+
+## stats
+
+Shows shareable usage statistics.
+
+```bash
+$ codeshod stats
+```
+
+Show the last 7 days.
+
+```bash
+$ codeshod stats --days 7
+```
+
+Show model usage.
+
+```bash
+$ codeshod stats --models
+```
+
+Show cost and token details.
+
+```bash
+$ codeshod stats --cost
+```
+
+Print JSON instead of a report.
+
+```bash
+$ codeshod stats --json
+```
+
+Show only the current project.
+
+```bash
+$ codeshod stats --project .
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod stats --help
+```
+
+## serve
+
+Starts the API server.
+
+```bash
+$ codeshod serve
+```
+
+Bind to all interfaces on a fixed port.
+
+```bash
+$ codeshod serve --hostname 0.0.0.0 --port 4096
+```
+
+Allow a browser client from another origin.
+
+```bash
+$ codeshod serve --cors https://app.example.com
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod serve --help
+```
+
+## pair
+
+Prints one-time links, plus a QR code of the first one, that sign a browser or
+app in to the server. Links expire after 5 minutes and work once.
+
+```bash
+$ codeshod pair
+```
+
+Use an external URL in the links.
+
+```bash
+$ codeshod pair --url https://dev.example.com
+```
+
+Pair from anywhere through an OpenTunnel remote address. This exposes the
+server to the internet, so the first time it enables remote access it explains
+this and asks you to accept.
+
+```bash
+$ codeshod pair --remote
+```
+
+Accept without a prompt, for example in a script without a terminal.
+
+```bash
+$ codeshod pair --remote --yes
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod pair --help
+```
+
+## service
+
+Manages the background server.
+
+```bash
+$ codeshod service start
+```
+
+Restart it.
+
+```bash
+$ codeshod service restart
+```
+
+Show its status.
+
+```bash
+$ codeshod service status
+```
+
+Stop it.
+
+```bash
+$ codeshod service stop
+```
+
+Read a setting.
+
+```bash
+$ codeshod service get hostname
+```
+
+Set a setting.
+
+```bash
+$ codeshod service set hostname 0.0.0.0
+```
+
+Allow an extra CORS origin.
+
+```bash
+$ codeshod service set cors https://app.example.com
+```
+
+Pass an environment variable to the server process.
+
+```bash
+$ codeshod service set env CODESHOD_LOG_LEVEL DEBUG
+```
+
+Reset a setting to its default.
+
+```bash
+$ codeshod service unset hostname
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod service --help
+```
+
+## reload
+
+Reloads configuration without restarting the server. Running sessions continue with fresh services at the next step boundary.
+
+```bash
+$ codeshod reload
+```
+
+## api
+
+Makes a request to the running server.
+
+```bash
+$ codeshod api GET /api/session
+```
+
+Call an operation ID with a query parameter.
+
+```bash
+$ codeshod api session.list --param limit=10
+```
+
+Send a JSON body.
+
+```bash
+$ codeshod api session.create --data '{"title": "New session"}'
+```
+
+Add a request header.
+
+```bash
+$ codeshod api GET /api/session -H "accept: application/json"
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod api --help
+```
+
+## acp
+
+Starts an Agent Client Protocol server over stdin and stdout for editor integrations. It runs until the client closes the connection.
+
+```bash
+$ codeshod acp
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod acp --help
+```
+
+## debug
+
+Provides debugging and troubleshooting tools.
+
+```bash
+$ codeshod debug agents
+```
+
+List configuration sources.
+
+```bash
+$ codeshod debug config
+```
+
+Write a heap snapshot of the running background server and print its path.
+
+```bash
+$ codeshod debug heap-dump
+```
+
+Write the snapshot into a directory of your choice.
+
+```bash
+$ codeshod debug heap-dump --directory ./snapshots
+```
+
+Show global paths.
+
+```bash
+$ codeshod debug paths
+```
+
+Print a single path.
+
+```bash
+$ codeshod debug paths db
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod debug --help
+```
+
+## upgrade
+
+Upgrades Codeshod to the latest or a specific version. Alias: `update`.
+
+```bash
+$ codeshod upgrade
+```
+
+Upgrade to a specific version with a specific package manager.
+
+```bash
+$ codeshod upgrade 2.0.21 --method bun
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod upgrade --help
+```
+
+## uninstall
+
+Stops background services, removes the global cache, and uninstalls Codeshod. Session data, configuration, and
+state are not removed.
+
+```bash
+$ codeshod uninstall
+```
+
+Preview what would be removed.
+
+```bash
+$ codeshod uninstall --dry-run
+```
+
+View all subcommands and flags.
+
+```bash
+$ codeshod uninstall --help
+```

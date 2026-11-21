@@ -1,0 +1,105 @@
+---
+title: "CLI intro"
+description: "Start the Codeshod terminal interface, run prompts from scripts and CI, and manage the shared background service."
+---
+
+Run the CLI in a project to open the full-screen terminal interface:
+
+```bash
+codeshod
+```
+
+Pass a directory to work in a different project:
+
+```bash
+codeshod ~/code/my-project
+```
+
+Suggested terminals:
+
+- [Ghostty](https://ghostty.org)
+- [WezTerm](https://wezterm.org)
+- [Alacritty](https://alacritty.org)
+- [Kitty](https://sw.kovidgoyal.net/kitty/)
+
+Truecolor support gives themes their most accurate colors; terminals without it use an approximation of the available
+palette.
+
+## Automation
+
+Use `codeshod run` to submit a prompt without opening the interactive interface. It is designed for scripts, CI jobs, and
+other workflows that need model output directly in the terminal.
+
+```bash
+codeshod run "Explain this repository"
+```
+
+## Mini
+
+Use `codeshod mini` to start Codeshod's minimal interactive interface instead of the full-screen TUI.
+
+```bash
+codeshod mini
+```
+
+Run `codeshod mini --help` to see its session, model, agent, prompt, and replay options.
+
+## Background service
+
+By default, Codeshod discovers or starts one shared background server for your user account. Every local Codeshod client
+connects to that server, which owns sessions, configuration, integrations, permissions, and tool execution.
+
+Use `--standalone` to run with a private server, or `--server` to connect to a specific server URL:
+
+```bash
+codeshod --standalone
+codeshod --server http://localhost:4096
+```
+
+To make private servers the default for CLI commands instead of starting the shared service, disable it:
+
+```bash
+codeshod service set disabled true
+codeshod
+```
+
+This stops the running background service. `--server` still connects to an explicitly selected server; `codeshod service start`
+can still start the shared service explicitly. To return to automatic service use, run `codeshod service unset disabled`.
+Pairing requires the shared service and is unavailable while it is disabled.
+
+See [Troubleshooting](/troubleshooting) for shared service diagnostics and the [API reference](/api) for server endpoints.
+
+## Paths
+
+Print a specific local path for use with other tools:
+
+```bash
+codeshod debug paths db
+sqlite3 "$(codeshod debug paths db)"
+```
+
+The optional selector accepts `db`, `home`, `data`, `config`, `cache`, `state`, `tmp`, `bin`, `log`, or `repos` and prints
+only the path and a newline. The database path respects the release channel and `CODESHOD_DB`; relative database overrides
+resolve under the data directory, and `:memory:` is printed as-is. This command does not start a server or open the database.
+
+Omit the selector to show all paths with labels:
+
+```bash
+codeshod debug paths
+```
+
+## Uninstall
+
+Preview the files and installation that will be removed:
+
+```bash
+codeshod uninstall --dry-run
+```
+
+Run `codeshod uninstall` to confirm removal. Codeshod stops registered background services and persistent terminals before
+removing the global cache directory, which is shared by Codeshod versions and channels. Session data, configuration, and
+state are never removed.
+
+- `--force` (`-f`) skips confirmation; use it for noninteractive removal.
+- Package-manager installations use the detected package manager. Curl installations print the final command to remove
+  the executable manually.

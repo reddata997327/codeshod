@@ -1,0 +1,579 @@
+---
+title: CLI
+description: codeshod CLI seçenekleri ve komutları.
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components"
+
+codeshod CLI herhangi bir argüman olmadan çalıştırıldığında varsayılan olarak [TUI](/docs/tui)'yi başlatır.
+
+```bash
+codeshod
+```
+
+Ancak bu sayfada belgelendiği gibi komutları da kabul eder. Bu, codeshod ile programlı olarak etkileşim kurmanıza olanak tanır.
+
+```bash
+codeshod run "Explain how closures work in JavaScript"
+```
+
+---
+
+### tui
+
+codeshod terminal kullanıcı arayüzünü başlatır.
+
+```bash
+codeshod [project]
+```
+
+#### Bayraklar
+
+| Bayrak                                   | Kısa | Açıklama                                                                    |
+| ---------------------------------------- | ---- | --------------------------------------------------------------------------- |
+| <nobr><code>{"--continue"}</code></nobr> | `-c` | Son oturuma devam et                                                        |
+| <nobr><code>{"--session"}</code></nobr>  | `-s` | Devam edecek oturum kimliği                                                 |
+| <nobr><code>{"--fork"}</code></nobr>     |      | Devam ederken oturumu fork'lar (`--continue` veya `--session` ile kullanın) |
+| <nobr><code>{"--prompt"}</code></nobr>   |      | Kullanılacak prompt                                                         |
+| <nobr><code>{"--model"}</code></nobr>    | `-m` | provider/model biçiminde kullanılacak model                                 |
+| <nobr><code>{"--agent"}</code></nobr>    |      | Kullanılacak agent                                                          |
+| <nobr><code>{"--port"}</code></nobr>     |      | Dinlenecek port                                                             |
+| <nobr><code>{"--hostname"}</code></nobr> |      | Dinlenecek host adı                                                         |
+
+---
+
+## Komutlar
+
+codeshod CLI ayrıca aşağıdaki komutlara da sahiptir.
+
+---
+
+### attach
+
+`serve` veya `web` komutlarıyla başlatılan, halihazırda çalışan bir codeshod arka uç sunucusuna bir terminal ekleyin.
+
+```bash
+codeshod attach [url]
+```
+
+Bu, TUI öğesinin uzak bir codeshod arka ucuyla kullanılmasına olanak tanır. Örneğin:
+
+```bash
+# Start the backend server for web/mobile access
+codeshod web --port 4096 --hostname 0.0.0.0
+
+# In another terminal, attach the TUI to the running backend
+codeshod attach http://10.20.30.40:4096
+```
+
+#### Bayraklar
+
+| Bayrak                                   | Kısa | Tanım                                                                                         |
+| ---------------------------------------- | ---- | --------------------------------------------------------------------------------------------- |
+| <nobr><code>{"--dir"}</code></nobr>      |      | TUI'yi başlatmak için çalışma dizini                                                          |
+| <nobr><code>{"--continue"}</code></nobr> | `-c` | Son oturuma devam et                                                                          |
+| <nobr><code>{"--session"}</code></nobr>  | `-s` | Devam edecek oturum açma bilgileri                                                            |
+| <nobr><code>{"--fork"}</code></nobr>     |      | Devam ederken oturumu çatalla (`--continue` veya `--session` ile kullanın)                    |
+| <nobr><code>{"--password"}</code></nobr> | `-p` | Temel kimlik doğrulama parolası (varsayılan: `CODESHOD_SERVER_PASSWORD`)                      |
+| <nobr><code>{"--username"}</code></nobr> | `-u` | Temel kimlik doğrulama kullanıcı adı (varsayılan: `CODESHOD_SERVER_USERNAME` veya `codeshod`) |
+
+---
+
+### auth
+
+Sağlayıcılar için kimlik bilgilerini ve oturum açmayı yönetme komutu.
+
+```bash
+codeshod auth [command]
+```
+
+---
+
+#### login
+
+codeshod, [Models.dev](https://models.dev) adresindeki sağlayıcı listesi tarafından desteklenmektedir, dolayısıyla kullanmak istediğiniz herhangi bir sağlayıcı için API anahtarlarını ayarlamak üzere `codeshod auth login` kullanabilirsiniz. Bu `~/.local/share/codeshod/auth.json`'de saklanıyor.
+
+```bash
+codeshod auth login
+```
+
+codeshod başlatıldığında sağlayıcıları kimlik bilgileri dosyasından yükler. Ayrıca ortam değişkenlerindeki veya projenizdeki `.env` dosyasındaki anahtarları da kullanır.
+
+---
+
+#### list
+
+Kimlik bilgileri dosyasında depolanan tüm kimliği doğrulanmış sağlayıcıları listeler.
+
+```bash
+codeshod auth list
+```
+
+Veya kısa versiyonu.
+
+```bash
+codeshod auth ls
+```
+
+---
+
+#### logout
+
+Bir sağlayıcıyı kimlik bilgileri dosyasından temizleyerek oturumunuzu kapatır.
+
+```bash
+codeshod auth logout
+```
+
+---
+
+### github
+
+Depo otomasyonu için GitHub aracısını yönetin.
+
+```bash
+codeshod github [command]
+```
+
+---
+
+#### install
+
+GitHub aracısını deponuza yükleyin.
+
+```bash
+codeshod github install
+```
+
+Bu komut gerekli GitHub Actions workflow'unu kurar ve yapılandırma adımlarında size rehberlik eder. [Daha fazla bilgi](/docs/github).
+
+---
+
+#### run
+
+GitHub aracısını çalıştırın. Bu genellikle GitHub Eylemlerinde kullanılır.
+
+```bash
+codeshod github run
+```
+
+##### Bayraklar
+
+| Bayrak                                | Açıklama                                    |
+| ------------------------------------- | ------------------------------------------- |
+| <nobr><code>{"--event"}</code></nobr> | Aracıyı çalıştırmak için GitHub sahte olayı |
+| <nobr><code>{"--token"}</code></nobr> | GitHub personal access token                |
+
+---
+
+### mcp
+
+Model Bağlam Protokolü sunucularını yönetin.
+
+```bash
+codeshod mcp [command]
+```
+
+---
+
+#### add
+
+Yapılandırmanıza bir MCP sunucusu ekleyin.
+
+```bash
+codeshod mcp add
+```
+
+Bu komut, yerel veya uzak bir MCP sunucusu ekleme konusunda size yol gösterecektir.
+
+---
+
+#### list
+
+Yapılandırılmış tüm MCP sunucularını ve bağlantı durumlarını listeleyin.
+
+```bash
+codeshod mcp list
+```
+
+Veya kısa versiyonunu kullanın.
+
+```bash
+codeshod mcp ls
+```
+
+---
+
+#### auth
+
+OAuth'un etkin olduğu bir MCP sunucusuyla kimlik doğrulaması yapın.
+
+```bash
+codeshod mcp auth [name]
+```
+
+Sunucu adı belirtmezseniz mevcut OAuth özellikli sunucular arasından seçim yapmanız istenir.
+
+Ayrıca OAuth özellikli sunucuları ve bunların kimlik doğrulama durumlarını da listeleyebilirsiniz.
+
+```bash
+codeshod mcp auth list
+```
+
+Veya kısa versiyonunu kullanın.
+
+```bash
+codeshod mcp auth ls
+```
+
+---
+
+#### logout
+
+MCP sunucusu için OAuth kimlik bilgilerini kaldırın.
+
+```bash
+codeshod mcp logout [name]
+```
+
+---
+
+#### debug
+
+MCP sunucusu için OAuth bağlantı sorunlarının hatalarını ayıklayın.
+
+```bash
+codeshod mcp debug <name>
+```
+
+---
+
+### models
+
+Yapılandırılmış sağlayıcıların tüm mevcut modellerini listeleyin.
+
+```bash
+codeshod models [provider]
+```
+
+Bu komut, yapılandırdığınız sağlayıcılardaki modelleri `provider/model` formatında listeler.
+
+Bu, [config dosyanızda](/docs/config/) kullanmanız gereken tam model adını bulmak için kullanışlıdır.
+
+Modelleri bu sağlayıcıya göre filtrelemek için isteğe bağlı olarak bir sağlayıcı kimliğini iletebilirsiniz.
+
+```bash
+codeshod models anthropic
+```
+
+#### Bayraklar
+
+| Bayrak                                  | Tanım                                                                       |
+| --------------------------------------- | --------------------------------------------------------------------------- |
+| <nobr><code>{"--refresh"}</code></nobr> | Modeller.dev'den model önbelleğini yenileyin                                |
+| <nobr><code>{"--verbose"}</code></nobr> | Daha ayrıntılı model çıktısı kullanın (maliyetler gibi meta veriler içerir) |
+
+Önbelleğe alınan model listesini güncellemek için `--refresh` bayrağını kullanın. Bu, bir sağlayıcıya yeni modeller eklendiğinde ve bunları codeshod'da görmek istediğinizde kullanışlıdır.
+
+```bash
+codeshod models --refresh
+```
+
+---
+
+### run
+
+Doğrudan bir istem ileterek codeshod'u etkileşimli olmayan modda çalıştırın.
+
+```bash
+codeshod run [message..]
+```
+
+Bu, komut dosyası oluşturma, otomasyon veya TUI'un tamamını başlatmadan hızlı bir yanıt istediğinizde kullanışlıdır. Örneğin.
+
+```bash "codeshod run"
+codeshod run Explain the use of context in Go
+```
+
+Ayrıca, her çalıştırmada MCP sunucusunun soğuk önyükleme sürelerini önlemek için çalışan bir `codeshod serve` örneğine de ekleyebilirsiniz:
+
+```bash
+# Start a headless server in one terminal
+codeshod serve
+
+# In another terminal, run commands that attach to it
+codeshod run --attach http://localhost:4096 "Explain async/await in JavaScript"
+```
+
+#### Bayraklar
+
+| Bayrak                                   | Kısa | Açıklama                                                                                      |
+| ---------------------------------------- | ---- | --------------------------------------------------------------------------------------------- |
+| <nobr><code>{"--command"}</code></nobr>  |      | Çalıştırılacak komut, args için mesajı kullanın                                               |
+| <nobr><code>{"--continue"}</code></nobr> | `-c` | Son oturuma devam et                                                                          |
+| <nobr><code>{"--session"}</code></nobr>  | `-s` | Devam edecek oturum kimliği                                                                   |
+| <nobr><code>{"--fork"}</code></nobr>     |      | Devam ederken oturumu fork'lar (`--continue` veya `--session` ile kullanın)                   |
+| <nobr><code>{"--model"}</code></nobr>    | `-m` | provider/model biçiminde kullanılacak model                                                   |
+| <nobr><code>{"--agent"}</code></nobr>    |      | Kullanılacak temsilci                                                                         |
+| <nobr><code>{"--file"}</code></nobr>     | `-f` | Mesaja eklenecek dosya(lar)                                                                   |
+| <nobr><code>{"--format"}</code></nobr>   |      | Biçim: varsayılan (biçimlendirilmiş) veya json (ham JSON olayları)                            |
+| <nobr><code>{"--title"}</code></nobr>    |      | Oturumun başlığı (değer sağlanmazsa kısaltılmış bilgi istemi kullanılır)                      |
+| <nobr><code>{"--attach"}</code></nobr>   |      | Çalışan bir codeshod sunucusuna ekleyin (ör. http://localhost:4096)                           |
+| <nobr><code>{"--password"}</code></nobr> | `-p` | Temel kimlik doğrulama parolası (varsayılan: `CODESHOD_SERVER_PASSWORD`)                      |
+| <nobr><code>{"--username"}</code></nobr> | `-u` | Temel kimlik doğrulama kullanıcı adı (varsayılan: `CODESHOD_SERVER_USERNAME` veya `codeshod`) |
+| <nobr><code>{"--dir"}</code></nobr>      |      | Çalıştırılacak dizin veya bağlanırken uzak sunucudaki yol                                     |
+| <nobr><code>{"--variant"}</code></nobr>  |      | Model varyantı (sağlayıcıya özgü muhakeme düzeyi)                                             |
+| <nobr><code>{"--thinking"}</code></nobr> |      | Düşünme bloklarını göster                                                                     |
+| <nobr><code>{"--port"}</code></nobr>     |      | Yerel sunucunun bağlantı noktası (varsayılan olarak rastgele bağlantı noktasıdır)             |
+
+---
+
+### serve
+
+API erişimi için headless bir codeshod sunucusu başlatır. Tam HTTP arayüzü için [server docs](/docs/server) sayfasına bakın.
+
+```bash
+codeshod serve
+```
+
+Bu, TUI arayüzü olmadan codeshod işlevselliğine API erişimi sağlayan bir HTTP sunucusunu başlatır. HTTP temel kimlik doğrulamasını etkinleştirmek için `CODESHOD_SERVER_PASSWORD` öğesini ayarlayın (kullanıcı adı varsayılan olarak `codeshod` şeklindedir).
+
+#### Bayraklar
+
+| Bayrak                                   | Tanım                                      |
+| ---------------------------------------- | ------------------------------------------ |
+| <nobr><code>{"--port"}</code></nobr>     | Dinlenecek bağlantı noktası                |
+| <nobr><code>{"--hostname"}</code></nobr> | Dinlenecek ana bilgisayar adı              |
+| <nobr><code>{"--mdns"}</code></nobr>     | mDNS bulmayı etkinleştir                   |
+| <nobr><code>{"--cors"}</code></nobr>     | CORS'a izin verecek ek tarayıcı kaynakları |
+
+---
+
+### session
+
+codeshod oturumlarını yönetin.
+
+```bash
+codeshod session [command]
+```
+
+---
+
+#### list
+
+Tüm codeshod oturumlarını listeleyin.
+
+```bash
+codeshod session list
+```
+
+##### Bayraklar
+
+| Bayrak                                    | Kısa | Tanım                                  |
+| ----------------------------------------- | ---- | -------------------------------------- |
+| <nobr><code>{"--max-count"}</code></nobr> | `-n` | En son N oturumla sınırla              |
+| <nobr><code>{"--format"}</code></nobr>    |      | Çıkış formatı: tablo veya json (tablo) |
+
+---
+
+### stats
+
+codeshod oturumlarınız için belirteç kullanımı ve maliyet istatistiklerini gösterin.
+
+```bash
+codeshod stats
+```
+
+#### Bayraklar
+
+| Bayrak                                  | Açıklama                                                                                                    |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| <nobr><code>{"--days"}</code></nobr>    | Son N güne ait istatistikleri göster (tüm zamanlar)                                                         |
+| <nobr><code>{"--tools"}</code></nobr>   | Gösterilecek araç sayısı (tümü)                                                                             |
+| <nobr><code>{"--models"}</code></nobr>  | Model kullanım dökümünü göster (varsayılan olarak gizlidir). En üstteki N'yi göstermek için bir sayı iletin |
+| <nobr><code>{"--project"}</code></nobr> | Projeye göre filtrele (tüm projeler, boş değer: mevcut proje)                                               |
+
+---
+
+### export
+
+Oturum verilerini JSON olarak dışa aktarın.
+
+```bash
+codeshod export [sessionID]
+```
+
+Bir oturum kimliği sağlamazsanız mevcut oturumlar arasından seçim yapmanız istenir.
+
+---
+
+### import
+
+Bir JSON dosyasından oturum verilerini içe aktarın.
+
+```bash
+codeshod import <file>
+```
+
+```bash
+codeshod import session.json
+```
+
+---
+
+### web
+
+Web arayüzüyle başsız bir codeshod sunucusu başlatın.
+
+```bash
+codeshod web
+```
+
+Bu, bir HTTP sunucusunu başlatır ve bir web arayüzü aracılığıyla codeshod'a erişmek için bir web tarayıcısı açar. HTTP temel kimlik doğrulamasını etkinleştirmek için `CODESHOD_SERVER_PASSWORD` öğesini ayarlayın (kullanıcı adı varsayılan olarak `codeshod` şeklindedir).
+
+#### Bayraklar
+
+| Bayrak                                   | Tanım                                      |
+| ---------------------------------------- | ------------------------------------------ |
+| <nobr><code>{"--port"}</code></nobr>     | Dinlenecek bağlantı noktası                |
+| <nobr><code>{"--hostname"}</code></nobr> | Dinlenecek ana bilgisayar adı              |
+| <nobr><code>{"--mdns"}</code></nobr>     | mDNS bulmayı etkinleştir                   |
+| <nobr><code>{"--cors"}</code></nobr>     | CORS'a izin verecek ek tarayıcı kaynakları |
+
+---
+
+### acp
+
+Bir ACP (Ajan İstemci Protokolü) sunucusu başlatın.
+
+```bash
+codeshod acp
+```
+
+Bu komut, nd-JSON kullanarak stdin/stdout aracılığıyla iletişim kuran bir ACP sunucusunu başlatır.
+
+#### Bayraklar
+
+| Bayrak                                   | Açıklama            |
+| ---------------------------------------- | ------------------- |
+| <nobr><code>{"--cwd"}</code></nobr>      | Çalışma dizini      |
+| <nobr><code>{"--port"}</code></nobr>     | Dinlenecek port     |
+| <nobr><code>{"--hostname"}</code></nobr> | Dinlenecek host adı |
+
+---
+
+### uninstall
+
+codeshod'u kaldırın ve ilgili tüm dosyaları kaldırın.
+
+```bash
+codeshod uninstall
+```
+
+#### Bayraklar
+
+| Bayrak                                      | Kısa | Tanım                                           |
+| ------------------------------------------- | ---- | ----------------------------------------------- |
+| <nobr><code>{"--keep-config"}</code></nobr> | `-c` | Yapılandırma dosyalarını sakla                  |
+| <nobr><code>{"--keep-data"}</code></nobr>   | `-d` | Oturum verilerini ve anlık görüntüleri saklayın |
+| <nobr><code>{"--dry-run"}</code></nobr>     |      | Nelerin kaldırılmadan kaldırılacağı göster      |
+| <nobr><code>{"--force"}</code></nobr>       | `-f` | Onay istemlerini atla                           |
+
+---
+
+### upgrade
+
+codeshod'u en son sürüme veya belirli bir sürüme günceller.
+
+```bash
+codeshod upgrade [target]
+```
+
+En son sürüme yükseltmek için.
+
+```bash
+codeshod upgrade
+```
+
+Belirli bir sürüme yükseltmek için:
+
+```bash
+codeshod upgrade v0.1.48
+```
+
+#### Bayraklar
+
+| Bayrak                                 | Kısa | Açıklama                                               |
+| -------------------------------------- | ---- | ------------------------------------------------------ |
+| <nobr><code>{"--method"}</code></nobr> | `-m` | Kullanılan kurulum yöntemi: curl, npm, pnpm, bun, brew |
+
+---
+
+## Global bayraklar
+
+codeshod CLI aşağıdaki global bayrakları destekler.
+
+| Bayrak                                     | Kısa | Tanım                                    |
+| ------------------------------------------ | ---- | ---------------------------------------- |
+| <nobr><code>{"--help"}</code></nobr>       | `-h` | Yardımı görüntüle                        |
+| <nobr><code>{"--version"}</code></nobr>    | `-v` | Sürüm numarasını yazdır                  |
+| <nobr><code>{"--print-logs"}</code></nobr> |      | Günlükleri stderr'e yazdır               |
+| <nobr><code>{"--log-level"}</code></nobr>  |      | Günlük düzeyi (DEBUG, INFO, WARN, ERROR) |
+
+---
+
+## Ortam değişkenleri
+
+codeshod ortam değişkenleri kullanılarak yapılandırılabilir.
+
+| Değişken                              | Tip     | Açıklama                                                                    |
+| ------------------------------------- | ------- | --------------------------------------------------------------------------- |
+| `CODESHOD_GIT_BASH_PATH`              | string  | Windows'ta yürütülebilir Git Bash'in Yolu                                   |
+| `CODESHOD_CONFIG`                     | string  | Yapılandırma dosyasının yolu                                                |
+| `CODESHOD_TUI_CONFIG`                 | string  | TUI yapılandırma dosyasının yolu                                            |
+| `CODESHOD_CONFIG_DIR`                 | string  | Yapılandırma dizinine giden yol                                             |
+| `CODESHOD_CONFIG_CONTENT`             | string  | Satır içi JSON config içeriği                                               |
+| `CODESHOD_DISABLE_AUTOUPDATE`         | boolean | Otomatik güncelleme kontrollerini devre dışı bırak                          |
+| `CODESHOD_DISABLE_PRUNE`              | boolean | Eski verilerin temizlenmesini devre dışı bırak                              |
+| `CODESHOD_DISABLE_TERMINAL_TITLE`     | boolean | Otomatik terminal başlığı güncellemelerini devre dışı bırakın               |
+| `CODESHOD_PERMISSION`                 | string  | Satır içi JSON izin config'i                                                |
+| `CODESHOD_DISABLE_DEFAULT_PLUGINS`    | boolean | Varsayılan eklentileri devre dışı bırakın                                   |
+| `CODESHOD_DISABLE_LSP_DOWNLOAD`       | boolean | Otomatik LSP sunucu indirmelerini devre dışı bırakın                        |
+| `CODESHOD_ENABLE_EXPERIMENTAL_MODELS` | boolean | Deneysel modelleri etkinleştir                                              |
+| `CODESHOD_DISABLE_AUTOCOMPACT`        | boolean | Otomatik context sıkıştırmayı devre dışı bırak                              |
+| `CODESHOD_DISABLE_CLAUDE_CODE`        | boolean | `.claude`'den okumayı devre dışı bırak (istem + beceriler)                  |
+| `CODESHOD_DISABLE_CLAUDE_CODE_PROMPT` | boolean | `~/.claude/CLAUDE.md` dosyasını okumayı devre dışı bırak                    |
+| `CODESHOD_DISABLE_CLAUDE_CODE_SKILLS` | boolean | `.claude/skills` yüklemesini devre dışı bırak                               |
+| `CODESHOD_DISABLE_MODELS_FETCH`       | boolean | Uzak kaynaklardan model getirmeyi devre dışı bırakın                        |
+| `CODESHOD_FAKE_VCS`                   | string  | Test amaçlı sahte VCS sağlayıcısı                                           |
+| `CODESHOD_CLIENT`                     | string  | Client kimliği (varsayılan: `cli`)                                          |
+| `CODESHOD_ENABLE_EXA`                 | boolean | Exa web arama araçlarını etkinleştir                                        |
+| `CODESHOD_SERVER_PASSWORD`            | string  | `serve`/`web` için temel kimlik doğrulamayı etkinleştirin                   |
+| `CODESHOD_SERVER_USERNAME`            | string  | Temel kimlik doğrulama kullanıcı adını geçersiz kıl (varsayılan `codeshod`) |
+| `CODESHOD_MODELS_URL`                 | string  | Model yapılandırmasını almak için özel URL                                  |
+
+---
+
+### Deneysel
+
+Bu ortam değişkenleri değişebilecek veya kaldırılabilecek deneysel özellikleri etkinleştirir.
+
+| Değişken                                        | Tip     | Tanım                                                   |
+| ----------------------------------------------- | ------- | ------------------------------------------------------- |
+| `CODESHOD_EXPERIMENTAL`                         | boolean | Şemsiye bayrağa bağlı deneysel özellikleri etkinleştir  |
+| `CODESHOD_EXPERIMENTAL_ICON_DISCOVERY`          | boolean | Simge bulmayı etkinleştir                               |
+| `CODESHOD_EXPERIMENTAL_DISABLE_COPY_ON_SELECT`  | boolean | TUI'da seçim yapıldığında kopyalamayı devre dışı bırak  |
+| `CODESHOD_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS` | number  | MS cinsinden bash komutları için varsayılan zaman aşımı |
+| `CODESHOD_EXPERIMENTAL_OUTPUT_TOKEN_MAX`        | number  | LLM yanıtları için maksimum çıktı belirteçleri          |
+| `CODESHOD_EXPERIMENTAL_FILEWATCHER`             | boolean | Tüm dizin için dosya izleyiciyi etkinleştir             |
+| `CODESHOD_EXPERIMENTAL_OXFMT`                   | boolean | Oxfmt biçimlendiriciyi etkinleştir                      |
+| `CODESHOD_EXPERIMENTAL_LSP_TOOL`                | boolean | Deneysel LSP aracını etkinleştir                        |
+| `CODESHOD_EXPERIMENTAL_DISABLE_FILEWATCHER`     | boolean | Dosya izleyiciyi devre dışı bırak                       |
+| `CODESHOD_EXPERIMENTAL_EXA`                     | boolean | Deneysel Exa özelliklerini etkinleştirin                |
+| `CODESHOD_EXPERIMENTAL_LSP_TY`                  | boolean | python dosyaları için TY LSP'yi etkinleştir             |
+| `CODESHOD_EXPERIMENTAL_PLAN_MODE`               | boolean | Plan modunu etkinleştir                                 |
+| `CODESHOD_EXPERIMENTAL_EVENT_SYSTEM`            | boolean | Deneysel olay sistemini etkinleştir                     |
+| `CODESHOD_EXPERIMENTAL_NATIVE_LLM`              | boolean | Yerel LLM istek yolunu etkinleştir                      |
+| `CODESHOD_EXPERIMENTAL_PARALLEL`                | boolean | Paralel web araması yürütmesini etkinleştir             |
+| `CODESHOD_EXPERIMENTAL_SCOUT`                   | boolean | Scout alt ajanını etkinleştir                           |
+| `CODESHOD_EXPERIMENTAL_WORKSPACES`              | boolean | Çalışma alanı desteğini etkinleştir                     |

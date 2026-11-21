@@ -1,0 +1,63 @@
+---
+title: "Hermes"
+description: "Use Console and Go models from Hermes Agent."
+---
+
+[Hermes Agent](https://hermes-agent.nousresearch.com) includes Codeshod providers for pay-as-you-go and Go. It picks the
+right API for each paid or Go model. Free-tier chat models require Codeshod and return HTTP `403` from Hermes.
+
+<Callout>
+  The [Console CLI](/console/harnesses#console-cli) sets up Hermes with one command, including the workspace's policies,
+  MCP servers, skills and instructions. Run `npx @codeshod/console setup hermes`. The steps below set it up by hand.
+</Callout>
+
+| Provider       | Plan          | Key variable           |
+| -------------- | ------------- | ---------------------- |
+| `codeshod-zen` | Pay-as-you-go | `CODESHOD_ZEN_API_KEY` |
+| `codeshod-go`  | Go            | `CODESHOD_GO_API_KEY`  |
+
+## Configure
+
+Run the model setup and select **Codeshod Zen** for pay-as-you-go or **Codeshod Go** for Go.
+
+```bash
+hermes model
+```
+
+Paste a [personal API key](/console/harnesses#get-an-api-key), then choose a model. Hermes saves the
+key to `~/.hermes/.env` and the selection to `~/.hermes/config.yaml`.
+
+```yaml title="~/.hermes/config.yaml"
+model:
+  provider: codeshod-go
+  default: kimi-k3
+```
+
+<Callout>Go requires a session ID on every request. Hermes v0.21.6 and later send it automatically.</Callout>
+
+## Models
+
+Use model IDs from the [Console](/console/models#endpoints) or [Go](/console/go#endpoints) table without a prefix.
+Switch models in a session with `/model`, or pick one for a single run.
+
+```bash
+hermes chat --provider codeshod-zen --model claude-sonnet-5-5
+```
+
+## Console MCP
+
+Add the [Console MCP](/console/harnesses#console-mcp) server with OAuth, then sign in from the browser.
+
+```bash
+hermes mcp add codeshod-console --url https://codeshod.ai/console/mcp --auth oauth
+hermes mcp login codeshod-console
+```
+
+Or add it to `~/.hermes/config.yaml` and run `/reload-mcp` in a session.
+
+```yaml title="~/.hermes/config.yaml"
+mcp_servers:
+  codeshod-console:
+    url: https://codeshod.ai/console/mcp
+    auth: oauth
+```

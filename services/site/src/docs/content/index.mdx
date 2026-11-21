@@ -1,0 +1,97 @@
+---
+title: "Intro"
+description: "Install Codeshod, the open source coding agent, as a CLI, desktop app, web app, or Docker image, then connect a model provider."
+---
+
+Codeshod is an open source coding agent. It’s available as a terminal-based interface, desktop app, or web app.
+
+
+## CLI
+
+<CodeTabs
+  id="install"
+  label="Install method"
+  tabs={[
+    { label: "curl", code: "curl -fsSL https://codeshod.ai/v2/install | bash" },
+    { label: "homebrew", code: "brew install reddata997327/tap/codeshod-v2" },
+    { label: "npm", code: "npm install -g @codeshod/cli" },
+    { label: "bun", code: "bun install -g --trust @codeshod/cli" },
+    { label: "pnpm", code: "pnpm add -g --allow-build=@codeshod/cli @codeshod/cli" },
+    { label: "yarn", code: "yarn global add @codeshod/cli" },
+    { label: "vite+", code: "vp install -g @codeshod/cli" },
+    { label: "aur", code: "paru -S codeshod-beta" },
+    { label: "mise", code: "mise use -g codeshod" },
+  ]}
+/>
+
+The npm package uses a postinstall script to select the native `codeshod` binary for your platform. The Bun and pnpm commands
+explicitly allow the required script; Vite+ requires no additional flag. The mise command requires mise 2026.10.9 or later;
+older versions install Codeshod 1.
+
+Windows package managers are not supported.
+
+
+Download a standalone CLI binary for your platform.
+
+- **macOS:** [Apple silicon](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-darwin-arm64.zip) · [Intel](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-darwin-x64.zip) · [Intel (baseline)](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-darwin-x64-baseline.zip)
+- **Windows:** [ARM64](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-windows-arm64.zip) · [x64](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-windows-x64.zip) · [x64 (baseline)](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-windows-x64-baseline.zip)
+- **Linux (glibc):** [ARM64](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-linux-arm64.tar.gz) · [x64](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-linux-x64.tar.gz) · [x64 (baseline)](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-linux-x64-baseline.tar.gz)
+- **Linux (musl):** [ARM64](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-linux-arm64-musl.tar.gz) · [x64](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-linux-x64-musl.tar.gz) · [x64 (baseline)](https://codeshod.ai/update/api/latest/cli/codeshod/codeshod-linux-x64-baseline-musl.tar.gz)
+
+## Desktop
+
+Download the latest Codeshod Desktop build for your platform.
+
+- **macOS:** [Apple silicon](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-mac-arm64.dmg) · [Intel](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-mac-x64.dmg)
+- **Windows:** [x64](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-win-x64.exe) · [ARM64](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-win-arm64.exe)
+- **Linux (.deb):** [x64](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-linux-amd64.deb) · [ARM64](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-linux-arm64.deb)
+- **Linux (.rpm):** [x64](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-linux-x86_64.rpm) · [ARM64](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-linux-aarch64.rpm)
+- **Linux (AppImage):** [x64](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-linux-x86_64.AppImage) · [ARM64](https://codeshod.ai/update/api/latest/desktop/codeshod/codeshod-desktop-linux-arm64.AppImage)
+
+
+## Web
+
+Access the Codeshod web interface with the `codeshod pair` command.
+
+```bash
+$ codeshod pair
+
+  Open a link to connect. Links work once and expire in 5 minutes.
+
+  http://127.0.0.1:49374/auth/connect/...
+```
+
+## Docker
+
+Docker images use versioned tags, for example `ghcr.io/reddata997327/codeshod:2.0.0`.
+
+---
+
+## Connect
+
+Codeshod has built-in support for many LLM providers. You can connect to them
+directly [in the TUI](/cli/providers) with `/connect`.
+
+See [Providers](/providers) to configure custom providers.
+
+If you'd like easy access to the best coding models, you can try out
+[Codeshod Console](/console).
+
+You can also try [Codeshod Go](/console/go), a $10/month subscription
+plan that grants you access to the best coding models.
+
+---
+
+## Customize
+
+Make Codeshod your own by editing the [Codeshod config](/config), [loading plugins](/plugins), [connecting MCP
+servers](/mcp-servers), or [creating commands](/commands). For terminal interface themes and keybindings, see [CLI
+settings](/cli/config).
+
+---
+
+## Learn
+
+If you are interested in an in-depth course on Codeshod, Boot.dev has created an excellent [AI Coding with
+Codeshod](https://www.boot.dev/courses/learn-ai-coding) course in consultation with our team. All the information in the course is
+free to read and watch, though some interactive features may require payment.
