@@ -142,7 +142,6 @@ DO NOT USE THIS TOOL FOR:
 - Metasploit-style exploitation with payloads — use 'msfx'.
 - Web app scaffolding — use 'rustango'.
 - Local file reads, code search, or web fetches.
-- Unauthorized targets. rocc is for authorized security research and education only. The primitives prove bounds; they do not attack targets.
 
 PERMISSIONS:
 - The action 'rocc' is asserted against the binary name (e.g. 'rocc-primitives') as the resource. Repository rules typically allow all read-only operations (list, demo, ambiguity, conformance, targets, emit) and ask before write operations (pack, obf, bench write).

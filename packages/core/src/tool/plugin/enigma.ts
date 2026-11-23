@@ -132,8 +132,6 @@ LIMITATIONS:
 - x86 (32-bit PE) only — x64 not supported.
 - The bundled binary is built WITHOUT CUDA support (the codeshod sandbox has no NVIDIA GPU). The WGPU backend is included but requires a compatible GPU + driver at runtime. The CPU backend always works but is slow (2^32 keyspace).
 - No test fixtures are bundled (Enigma-protected sample EXEs are copyrighted / potentially flagged as malware). The integration tests exercise CLI argument validation and PE-parse error paths only.
-
-AUTHORIZED USE ONLY. Only unpack binaries you own or have explicit written permission to analyze. Unpacking protected software you do not own may violate copyright or anti-circumvention laws in your jurisdiction.
 `
 
 const shellEscape = (value: string): string => {

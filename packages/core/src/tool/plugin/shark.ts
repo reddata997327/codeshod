@@ -216,8 +216,6 @@ PERMISSIONS:
 
 OUTPUT:
 - Always a JSON object: { operation, ok, summary, data, raw }. The 'data' field carries the parsed JSON output from shark (packet list, stats, file info, edit counts, etc.). The 'raw' field carries the subprocess exit code and stdout/stderr for debugging.
-
-AUTHORIZED USE ONLY for live capture (dumpcap). Reading and analyzing capture files is safe everywhere. Live capture on a network you do not own or have permission to monitor may be illegal.
 `
 
 /** Resolve the file path: if `useSample` is set, resolve from the bundled samples dir; otherwise use `file` as-is. */

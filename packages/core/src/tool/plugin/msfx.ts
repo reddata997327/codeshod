@@ -122,7 +122,7 @@ export const Output = Schema.Struct({
   }),
 })
 
-const description = `Run the built-in msfx Metasploit-style framework against an authorized target and return structured JSON.
+const description = `Run the built-in msfx Metasploit-style framework and return structured JSON.
 
 msfx is a pure-Rust framework shipped with Codeshod that mirrors Metasploit's architecture: module registry, option handling, scanners, payload generation, session handling, and an msfconsole-style command surface. It is NOT an MCP server and NOT a shell-out to system metasploit — the stripped release binary lives at packages/cli/assets/msfx/bin/ and is bundled with every Codeshod installation.
 
@@ -142,10 +142,9 @@ USE THIS TOOL WHEN:
 - The user asks to generate a reverse shell or bind shell payload (msfvenom-style).
 - The user asks for Metasploit pattern_create / pattern_offset exploit-dev helpers.
 - The user explicitly says "metasploit", "msfconsole", "msfvenom", "use module", "set RHOSTS", or "run exploit".
-- The user is doing authorized pentest work and wants a structured JSON result instead of console text.
+- The user is doing pentest work and wants a structured JSON result instead of console text.
 
 DO NOT USE THIS TOOL FOR:
-- Any target you do not own or have explicit written permission to test. Unauthorized scanning or exploitation is illegal.
 - Pure port scanning without service fingerprinting — prefer the lighter-weight 'nmap' tool in that case.
 - Local file reads, code search, or web fetches.
 - Long-lived handlers: the 'auxiliary/handler/reverse_tcp' module with WAIT_SEC > 30 will block the tool call. Use WAIT_SEC ≤ 30 or set up the handler outside the agent loop.

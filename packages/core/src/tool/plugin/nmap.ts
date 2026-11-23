@@ -203,7 +203,6 @@ USE THIS TOOL WHEN:
 - You need a structured JSON port/host inventory for follow-up reasoning.
 
 DO NOT USE THIS TOOL FOR:
-- Scanning targets you do not own or have explicit written permission to test. Unauthorized scanning may be illegal.
 - Local file reads, code search, or web fetches — use 'read', 'grep', or 'webfetch' instead.
 
 PERMISSIONS:
