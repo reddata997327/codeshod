@@ -62,6 +62,27 @@ nix run github:reddata997327/codeshod  # Nix
 > [!TIP]
 > Remove versions older than 0.1.x before installing.
 
+### Kali Linux (one command)
+
+No Node.js, Bun, npm or brew needed — install the standalone `codeshod` binary straight from GitHub Releases:
+
+```bash
+INSTALLER=https://raw.githubusercontent.com/reddata997327/codeshod/main/install-kali.sh
+
+# Install the latest release (Kali Linux and any Debian/Ubuntu-family Linux, x86_64)
+curl -fsSL $INSTALLER | bash
+
+# Installer options
+curl -fsSL $INSTALLER | bash -s -- -h                # help / all options
+curl -fsSL $INSTALLER | bash -s -- -v v2.3.0         # install a specific release tag
+curl -fsSL $INSTALLER | bash -s -- -d ~/.codeshod    # custom install root
+curl -fsSL $INSTALLER | bash -s -- --from-source     # build from source instead of downloading the binary
+curl -fsSL $INSTALLER | bash -s -- --no-modify-path  # don't touch shell config files
+curl -fsSL $INSTALLER | bash -s -- --uninstall       # remove Codeshod and revert PATH changes
+```
+
+The installer downloads `codeshod-linux-x64.tar.gz` from [GitHub Releases](https://github.com/reddata997327/codeshod/releases/latest), extracts the binary to `~/.codeshod/bin`, links it into `~/.local/bin`, and adds it to your `PATH` in `~/.bashrc` / `~/.zshrc` / `~/.profile`. Open a new shell (or `source ~/.bashrc`) and run `codeshod`.
+
 ### Agents
 
 Codeshod includes two built-in agents you can switch between with the `Tab` key.
@@ -101,7 +122,7 @@ Codeshod also ships with `msfx` — a pure-Rust Metasploit-style exploitation fr
 
 Built-in modules: `auxiliary/scanner/portscan/tcp`, `auxiliary/gather/banner_grab`, `auxiliary/scanner/http/http_version`, `auxiliary/scanner/ssh/ssh_version`, `auxiliary/handler/reverse_tcp`, `exploit/lab/stack_overflow_template`, `payload/single/reverse_tcp`, `payload/single/bind_tcp`, `encoder/generic/xor`.
 
-The tool does NOT expose the `msfx rpc` long-lived TCP server — every action is one-shot. See [specs/v2/tools.md](./specs/v2/tools.md#built-in-metasploit-style-framework-msfx) for the full contract and the [msfx skill](./.codeshod/skills/msfx/SKILL.md) for usage patterns. **Authorized use only.**
+The tool does NOT expose the `msfx rpc` long-lived TCP server — every action is one-shot. See [specs/v2/tools.md](./specs/v2/tools.md#built-in-metasploit-style-framework-msfx) for the full contract and the [msfx skill](./.codeshod/skills/msfx/SKILL.md) for usage patterns.
 
 ### Built-in `shark` headless Wireshark
 
@@ -144,7 +165,7 @@ Codeshod also ships with `rocc` — a pure-Rust registry of offensive security p
 - `rocc-tools` — build layer (cross-compile matrix, strip, pack, obf with xor-rolling / reverse transforms)
 - `rocc-bench` — reliability + cost measurement
 
-rocc decomposes every offensive act into irreducible primitives, each with a substrate bound (physics/math/semantics/economics) and a conformance gate. Nothing is "done" until `rocc-conformance` says so. **Authorized security research and education only** — the primitives prove bounds, they do not attack targets. Only the stripped binaries are bundled (no source code); see [specs/v2/tools.md](./specs/v2/tools.md#built-in-registry-of-offensive-capability-rocc) for the full contract and the [rocc skill](./.codeshod/skills/rocc/SKILL.md) for usage patterns.
+rocc decomposes every offensive act into irreducible primitives, each with a substrate bound (physics/math/semantics/economics) and a conformance gate. Nothing is "done" until `rocc-conformance` says so. Only the stripped binaries are bundled (no source code); see [specs/v2/tools.md](./specs/v2/tools.md#built-in-registry-of-offensive-capability-rocc) for the full contract and the [rocc skill](./.codeshod/skills/rocc/SKILL.md) for usage patterns.
 
 ### Built-in `enigma` Enigma Protector unpacker
 
@@ -155,7 +176,7 @@ Codeshod also ships with `enigma` — a pure-Rust static unpacker and devirtuali
 - `scan` — list template-VM entry point RVAs
 - `devirt` — lift one VM entry RVA back to x86 assembly (`.asm`) or raw machine code (`.bin`)
 
-**x86 (32-bit PE) only — x64 not supported.** The bundled binary has WGPU + CPU backends (no CUDA, since the codeshod sandbox has no NVIDIA GPU); unpack on CPU is slow (2³² keyspace). Only the stripped binary is bundled (no source code); see [specs/v2/tools.md](./specs/v2/tools.md#built-in-enigma-protector-unpacker-enigma) for the full contract and the [enigma skill](./.codeshod/skills/enigma/SKILL.md) for usage patterns. **Authorized use only** — only unpack binaries you own or have explicit written permission to analyze.
+**x86 (32-bit PE) only — x64 not supported.** The bundled binary has WGPU + CPU backends (no CUDA, since the codeshod sandbox has no NVIDIA GPU); unpack on CPU is slow (2³² keyspace). Only the stripped binary is bundled (no source code); see [specs/v2/tools.md](./specs/v2/tools.md#built-in-enigma-protector-unpacker-enigma) for the full contract and the [enigma skill](./.codeshod/skills/enigma/SKILL.md) for usage patterns.
 
 ### Documentation
 
