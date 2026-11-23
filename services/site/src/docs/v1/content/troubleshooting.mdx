@@ -1,0 +1,312 @@
+---
+title: Troubleshooting
+description: Common issues and how to resolve them.
+---
+
+To debug issues with Codeshod, start by checking the logs and local data it stores on disk.
+
+---
+
+## Logs
+
+CLI and server logs are written to:
+
+- **macOS/Linux**: `~/.local/share/codeshod/log/codeshod.log`
+- **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.local\share\codeshod\log`
+
+Logs are appended to `codeshod.log`. Run `codeshod debug paths` to find the log directory if you use custom XDG paths.
+
+You can set the log level with the `--log-level` command-line option to get more detailed debug information. For example, `codeshod --log-level DEBUG`.
+
+---
+
+## Storage
+
+codeshod stores session data and other application data on disk at:
+
+- **macOS/Linux**: `~/.local/share/codeshod/`
+- **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.local\share\codeshod`
+
+This directory contains:
+
+- `auth.json` - Authentication data like API keys, OAuth tokens
+- `log/` - Application logs
+- `codeshod.db` - SQLite database containing projects, sessions, and messages
+- `snapshot/` - Project snapshots used for undo
+
+Run `codeshod db path` to find the active database. Custom `CODESHOD_DB` settings and development channels can use a different filename.
+
+---
+
+## Uninstall
+
+To uninstall the Codeshod CLI and remove its related files, run:
+
+```bash
+codeshod uninstall
+```
+
+The command shows what will be removed and asks for confirmation. See the [CLI reference](/docs/cli#uninstall) for options to keep your configuration or application data.
+
+To remove Codeshod Desktop, uninstall the application through your operating system's app management tools.
+
+---
+
+## Desktop app
+
+Codeshod Desktop uses Electron and runs a local Codeshod server in the background. Most issues are caused by a misbehaving plugin, a corrupted cache, or a bad server setting.
+
+Desktop logs are stored in timestamped directories under `logs/` in the [desktop app data directory](#reset-desktop-app-storage-last-resort).
+
+### Quick checks
+
+- Fully quit and relaunch the app.
+- If the app shows an error screen, click **Restart** and copy the error details.
+- macOS only: `Codeshod` menu -> **Reload Webview** (helps if the UI is blank/frozen).
+
+---
+
+### Disable plugins
+
+If the desktop app is crashing on launch, hanging, or behaving strangely, start by disabling plugins.
+
+#### Check the global config
+
+Open your global config file and look for a `plugin` key.
+
+- **macOS/Linux**: `~/.config/codeshod/codeshod.jsonc` (or `~/.config/codeshod/codeshod.json`)
+- **macOS/Linux** (older installs): `~/.local/share/codeshod/codeshod.jsonc`
+- **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.config\codeshod\codeshod.jsonc`
+
+If you have plugins configured, temporarily disable them by removing the key or setting it to an empty array:
+
+```jsonc
+{
+  "$schema": "https://codeshod.ai/config.json",
+  "plugin": [],
+}
+```
+
+#### Check plugin directories
+
+Codeshod can also load local plugins from disk. Temporarily move these out of the way (or rename the folder) and restart the desktop app:
+
+- **Global plugins**
+  - **macOS/Linux**: `~/.config/codeshod/plugins/`
+  - **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.config\codeshod\plugins`
+- **Project plugins** (only if you use per-project config)
+  - `<your-project>/.codeshod/plugins/`
+
+If the app starts working again, re-enable plugins one at a time to find which one is causing the issue.
+
+---
+
+### Clear the cache
+
+If disabling plugins doesn't help (or a plugin install is stuck), clear the cache so Codeshod can rebuild it.
+
+1. Quit Codeshod Desktop completely.
+2. Delete the cache directory:
+
+- **macOS**: Finder -> `Cmd+Shift+G` -> paste `~/.cache/codeshod`
+- **Linux**: delete `~/.cache/codeshod` (or run `rm -rf ~/.cache/codeshod`)
+- **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.cache\codeshod`
+
+3. Restart Codeshod Desktop.
+
+---
+
+### Fix server connection issues
+
+Codeshod Desktop can either start its own local server (default) or connect to a server URL you configured.
+
+If you see a **"Connection Failed"** dialog (or the app never gets past the splash screen), check for a custom server URL.
+
+#### Clear the desktop default server URL
+
+From the Home screen, click the server name (with the status dot) to open the Server picker. In the **Default server** section, click **Clear**.
+
+#### Remove `server.port` / `server.hostname` from your config
+
+If your `codeshod.json(c)` contains a `server` section, temporarily remove it and restart the desktop app.
+
+#### Check environment variables
+
+If you have `CODESHOD_PORT` set in your environment, the desktop app will try to use that port for the local server.
+
+- Unset `CODESHOD_PORT` (or pick a free port) and restart.
+
+---
+
+### Linux: Wayland / X11 issues
+
+On Linux, some Wayland setups can cause blank windows or compositor errors.
+
+- Try launching under an X11 session to check whether the issue is specific to Wayland.
+
+---
+
+### Windows: General performance issues
+
+If you're experiencing slow performance, file access issues, or terminal problems on Windows, try using [WSL (Windows Subsystem for Linux)](/docs/windows-wsl). WSL provides a Linux environment that works more seamlessly with Codeshod's features.
+
+---
+
+### Notifications not showing
+
+Codeshod Desktop only shows system notifications when:
+
+- notifications are enabled for Codeshod in your OS settings, and
+- the app window is not focused.
+
+---
+
+### Reset desktop app storage (last resort)
+
+If the app won't start and you can't clear settings from inside the UI, reset the desktop app's saved state.
+
+1. Quit Codeshod Desktop.
+2. Find and delete these files (they live in the Codeshod Desktop app data directory):
+
+- `codeshod.settings` (desktop settings, including the default server URL)
+- `codeshod.global.dat` and `codeshod.workspace.*.dat` (UI state like recent servers/projects)
+
+For the stable release, the desktop app data directory is:
+
+- **macOS**: `~/Library/Application Support/ai.codeshod.desktop/`
+- **Linux**: `~/.config/ai.codeshod.desktop/` (or `$XDG_CONFIG_HOME/ai.codeshod.desktop/`)
+- **Windows**: `%APPDATA%\ai.codeshod.desktop\`
+
+Beta and development builds use the `ai.codeshod.desktop.beta` and `ai.codeshod.desktop.dev` directories instead.
+
+---
+
+## Getting help
+
+If you're experiencing issues with Codeshod:
+
+1. **Report issues on GitHub**
+
+   The best way to report bugs or request features is through our GitHub repository:
+
+   [**github.com/reddata997327/codeshod/issues**](https://github.com/reddata997327/codeshod/issues)
+
+   Before creating a new issue, search existing issues to see if your problem has already been reported.
+
+2. **Join our Discord**
+
+   For real-time help and community discussion, join our Discord server:
+
+   [**codeshod.ai/discord**](https://codeshod.ai/discord)
+
+---
+
+## Common issues
+
+Here are some common issues and how to resolve them.
+
+---
+
+### Codeshod won't start
+
+1. Check the logs for error messages
+2. Try running with `--print-logs` to see output in the terminal
+3. Ensure you have the latest version with `codeshod upgrade`
+
+---
+
+### Authentication issues
+
+1. Try re-authenticating with the `/connect` command in the TUI
+2. Check that your API keys are valid
+3. Ensure your network allows connections to the provider's API
+
+---
+
+### Model not available
+
+1. Check that you've authenticated with the provider
+2. Verify the model name in your config is correct
+3. Some models may require specific access or subscriptions
+
+If you encounter `ProviderModelNotFoundError` you are most likely incorrectly
+referencing a model somewhere.
+Models should be referenced like so: `<providerId>/<modelId>`
+
+Examples:
+
+- `openai/gpt-6.1-sol`
+- `openrouter/google/gemini-3.8-flash`
+- `codeshod/kimi-k2`
+
+To figure out what models you have access to, run `codeshod models`
+
+---
+
+### ProviderInitError
+
+If you encounter a ProviderInitError, you likely have an invalid or corrupted configuration.
+
+To resolve this:
+
+1. First, verify your provider is set up correctly by following the [providers guide](/docs/providers)
+2. If the issue persists, try clearing your stored configuration:
+
+   ```bash
+   rm -rf ~/.local/share/codeshod
+   ```
+
+   On Windows, press `WIN+R` and delete: `%USERPROFILE%\.local\share\codeshod`
+
+3. Re-authenticate with your provider using the `/connect` command in the TUI.
+
+---
+
+### AI_APICallError and provider package issues
+
+If you encounter API call errors, this may be due to outdated provider packages. codeshod dynamically installs provider packages (OpenAI, Anthropic, Google, etc.) as needed and caches them locally.
+
+To resolve provider package issues:
+
+1. Clear the provider package cache:
+
+   ```bash
+   rm -rf ~/.cache/codeshod
+   ```
+
+   On Windows, press `WIN+R` and delete: `%USERPROFILE%\.cache\codeshod`
+
+2. Restart codeshod to reinstall the latest provider packages
+
+This will force codeshod to download the most recent versions of provider packages, which often resolves compatibility issues with model parameters and API changes.
+
+---
+
+### Copy/paste not working on Linux
+
+Linux users need to have one of the following clipboard utilities installed for copy/paste functionality to work:
+
+**For X11 systems:**
+
+```bash
+apt install -y xclip
+# or
+apt install -y xsel
+```
+
+**For Wayland systems:**
+
+```bash
+apt install -y wl-clipboard
+```
+
+**For headless environments:**
+
+```bash
+apt install -y xvfb
+# and run:
+Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+export DISPLAY=:99.0
+```
+
+codeshod will detect if you're using Wayland and prefer `wl-clipboard`, otherwise it will try to find clipboard tools in order of: `xclip` and `xsel`.

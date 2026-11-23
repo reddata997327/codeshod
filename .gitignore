@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+out/
+.next/
+.output/
+.nitro/
+.solid-start/
+.vite/
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Turbo / task caches
+.turbo/
+
+# Bun
+.bun/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.zed/
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Misc caches
+.cache/
+.eslintcache
+*.pid
+*.seed

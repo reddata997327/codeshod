@@ -1,0 +1,19 @@
+{
+  "$schema": "https://codeshod.ai/config.json",
+  "provider": {},
+  "permission": {},
+  "references": {
+    "effect": {
+      "repository": "github.com/Effect-TS/effect-smol",
+      "description": "Use for Effect v4 and effect-smol implementation details",
+    },
+    "codeshod-local": {
+      "path": "~/.local/share/codeshod",
+      "description": "Contains codeshod logs and data",
+    },
+  },
+  "mcp": {},
+  "tools": {
+    "github-pr-search": false,
+  },
+}

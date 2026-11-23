@@ -1,0 +1,197 @@
+---
+title: GitLab
+description: Use Codeshod in GitLab issues and merge requests.
+---
+
+Codeshod integrates with your GitLab workflow through your GitLab CI/CD pipeline or with GitLab Duo.
+
+In both cases, Codeshod will run on your GitLab runners.
+
+---
+
+## GitLab CI
+
+Codeshod works in a regular GitLab pipeline. You can build it into a pipeline as a [CI component](https://docs.gitlab.com/ee/ci/components/)
+
+Here we are using a community-created CI/CD component for Codeshod — [nagyv/gitlab-codeshod](https://gitlab.com/nagyv/gitlab-codeshod).
+
+---
+
+### Features
+
+- **Use custom configuration per job**: Configure Codeshod with a custom configuration directory, for example `./config/#custom-directory` to enable or disable functionality per Codeshod invocation.
+- **Minimal setup**: The CI component sets up Codeshod in the background, you only need to create the Codeshod configuration and the initial prompt.
+- **Flexible**: The CI component supports several inputs for customizing its behavior
+
+---
+
+### Setup
+
+1. Store your Codeshod authentication JSON as a File type CI environment variables under **Settings** > **CI/CD** > **Variables**. Make sure to mark them as "Masked and hidden".
+2. Add the following to your `.gitlab-ci.yml` file.
+
+   ```yaml title=".gitlab-ci.yml"
+   include:
+     - component: $CI_SERVER_FQDN/nagyv/gitlab-codeshod/codeshod@2
+       inputs:
+         config_dir: ${CI_PROJECT_DIR}/codeshod-config
+         auth_json: $CODESHOD_AUTH_JSON # The variable name for your Codeshod authentication JSON
+         command: optional-custom-command
+         message: "Your prompt here"
+   ```
+
+For more inputs and use cases [check out the docs](https://gitlab.com/explore/catalog/nagyv/gitlab-codeshod) for this component.
+
+---
+
+## GitLab Duo
+
+Codeshod integrates with your GitLab workflow.
+Mention `@codeshod` in a comment, and Codeshod will execute tasks within your GitLab CI pipeline.
+
+---
+
+### Features
+
+- **Triage issues**: Ask Codeshod to look into an issue and explain it to you.
+- **Fix and implement**: Ask Codeshod to fix an issue or implement a feature.
+  It will create a new branch and raise a merge request with the changes.
+- **Secure**: Codeshod runs on your GitLab runners.
+
+---
+
+### Setup
+
+Codeshod runs in your GitLab CI/CD pipeline, here's what you'll need to set it up:
+
+:::tip
+Check out the [**GitLab docs**](https://docs.gitlab.com/user/duo_agent_platform/agent_assistant/) for up to date instructions.
+:::
+
+1.  Configure your GitLab environment
+2.  Set up CI/CD
+3.  Get an AI model provider API key
+4.  Create a service account
+5.  Configure CI/CD variables, including `GITLAB_HOST` (for example, `gitlab.com`)
+6.  Create a flow config file, here's an example:
+
+        <details>
+
+    <summary>Flow configuration</summary>
+
+    ```yaml
+    image: node:22-slim
+    commands:
+      - echo "Installing codeshod"
+      - npm install --global codeshod-ai
+      - echo "Installing glab"
+      - export GITLAB_TOKEN="$GITLAB_TOKEN_CODESHOD"
+      - apt-get update --quiet && apt-get install --yes curl wget gpg git && rm --recursive --force /var/lib/apt/lists/*
+      - curl --silent --show-error --location "https://raw.githubusercontent.com/upciti/wakemeops/main/assets/install_repository" | bash
+      - apt-get install --yes glab
+      - echo "Configuring glab"
+      - echo "$GITLAB_HOST"
+      - echo "Creating Codeshod auth configuration"
+      - mkdir --parents ~/.local/share/codeshod
+      - |
+        cat > ~/.local/share/codeshod/auth.json << EOF
+        {
+          "anthropic": {
+            "type": "api",
+            "key": "$ANTHROPIC_API_KEY"
+          }
+        }
+        EOF
+      - echo "Configuring git"
+      - git config --global user.email "codeshod@gitlab.com"
+      - git config --global user.name "Codeshod"
+      - echo "Testing glab"
+      - glab issue list
+      - echo "Running Codeshod"
+      - |
+        codeshod run "
+        You are an AI assistant helping with GitLab operations.
+
+        Context: $AI_FLOW_CONTEXT
+        Task: $AI_FLOW_INPUT
+        Event: $AI_FLOW_EVENT
+
+        Please execute the requested task using the available GitLab tools.
+        Be thorough in your analysis and provide clear explanations.
+
+        <important>
+        Please use the glab CLI to access data from GitLab. The glab CLI has already been authenticated. You can run the corresponding commands.
+
+        If you are asked to summarize an MR or issue or asked to provide more information then please post back a note to the MR/Issue so that the user can see it.
+        You don't need to commit or push up changes, those will be done automatically based on the file changes you make.
+        </important>
+        "
+      - echo "Checking for git changes and pushing if any exist"
+      - |
+        if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+          echo "Git changes detected, adding and pushing..."
+          git add .
+          if git diff --cached --quiet; then
+            echo "No staged changes to commit"
+          else
+            BRANCH="codeshod/${CI_JOB_ID}"
+            git checkout -b "$BRANCH"
+            echo "Committing changes to branch: $BRANCH"
+            git commit --message "Codeshod changes"
+            echo "Pushing changes up to $BRANCH"
+            git push "https://oauth2:${GITLAB_TOKEN}@${GITLAB_HOST}/${CI_PROJECT_PATH}.git" "HEAD:refs/heads/${BRANCH}"
+            glab mr create --source-branch "$BRANCH" --fill --push=false --yes
+            echo "Changes successfully pushed"
+          fi
+        else
+          echo "No git changes detected, skipping push"
+        fi
+    variables:
+      - ANTHROPIC_API_KEY
+      - GITLAB_TOKEN_CODESHOD
+      - GITLAB_HOST
+    ```
+
+        </details>
+
+You can refer to the [GitLab CLI agents docs](https://docs.gitlab.com/user/duo_agent_platform/agent_assistant/) for detailed instructions.
+
+---
+
+### Examples
+
+Here are some examples of how you can use Codeshod in GitLab.
+
+:::tip
+You can configure to use a different trigger phrase than `@codeshod`.
+:::
+
+- **Explain an issue**
+
+  Add this comment in a GitLab issue.
+
+  ```
+  @codeshod explain this issue
+  ```
+
+  Codeshod will read the issue and reply with a clear explanation.
+
+- **Fix an issue**
+
+  In a GitLab issue, say:
+
+  ```
+  @codeshod fix this
+  ```
+
+  Codeshod will create a new branch, implement the changes, and open a merge request with the changes.
+
+- **Review merge requests**
+
+  Leave the following comment on a GitLab merge request.
+
+  ```
+  @codeshod review this merge request
+  ```
+
+  Codeshod will review the merge request and provide feedback.

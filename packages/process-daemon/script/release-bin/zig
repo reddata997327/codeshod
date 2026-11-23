@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+if [ -z "${CODESHOD_REAL_ZIG:-}" ]; then
+  echo "CODESHOD_REAL_ZIG is required" >&2
+  exit 1
+fi
+
+if [ "${1:-}" = "build" ]; then
+  exec "$CODESHOD_REAL_ZIG" "$@" -Dcpu=baseline
+fi
+
+exec "$CODESHOD_REAL_ZIG" "$@"
