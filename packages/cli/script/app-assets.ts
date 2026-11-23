@@ -1,4 +1,5 @@
 import { $ } from "bun"
+import { existsSync } from "node:fs"
 import path from "node:path"
 import { promisify } from "node:util"
 import { brotliCompress, constants } from "node:zlib"
@@ -8,6 +9,12 @@ import { collectFiles } from "./files"
 export async function buildAppArchive(channel: string, version: string, options?: { skipBuild?: boolean }) {
   if (options?.skipBuild) return AppArchive.encode([])
   const root = path.resolve(import.meta.dirname, "../../app")
+  // The web UI app is optional: builds without packages/app still produce a working CLI binary, just without the
+  // embedded web UI archive.
+  if (!existsSync(root)) {
+    console.warn("packages/app not found - building CLI without embedded web UI")
+    return AppArchive.encode([])
+  }
   await $`bun run build`.cwd(root).env({
     ...process.env,
     CODESHOD_CHANNEL: channel,
